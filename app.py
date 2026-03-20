@@ -4,7 +4,15 @@ import os
 app = Flask(__name__)
 # Secret key is required for session and flash messages!
 app.secret_key = "city_library_super_secret_key" 
-
+@app.route('/test')
+def test():
+    try:
+        db = get_db_connection()
+        db.close()
+        return "Database connected successfully!"
+    except Exception as e:
+        return f"Database error: {str(e)}"
+        
 def get_db_connection():
     return mysql.connector.connect(
         host=os.environ.get("DB_HOST"),
