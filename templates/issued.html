@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookBase - Currently Reading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- CORE STYLES & COLORS --- */
+        :root { --bg-color: #FCF9F5; --sidebar-bg: #F4EBE1; --primary-orange: #F05A28; --dark-navy: #0A2E4D; --text-dark: #333333; --text-muted: #888888; --card-bg: #FDFBFA; --border-color: #EAEAEA; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+        /* --- SIDEBAR & HAMBURGER --- */
+        .sidebar { width: 250px; background-color: var(--sidebar-bg); padding: 2rem 1rem; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+        .logo { font-size: 1.5rem; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark-navy); cursor: pointer; }
+        .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
+        .nav-links { display: flex; flex-direction: column; gap: 1rem; flex-grow: 1; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); padding: 0.75rem 1rem; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+        .nav-links a.active { background-color: #FFEAE3; color: var(--primary-orange); }
+        .nav-links a:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
+        .sidebar-bottom { margin-top: auto; }
+        .btn-orange { background-color: var(--primary-orange); color: white; text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; border: none; cursor: pointer; text-align: center; transition: background 0.2s; width: 100%; display: block; font-size: 0.9rem;}
+        .btn-orange:hover { background-color: #d94b1f; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { margin-left: 250px; flex-grow: 1; padding: 3rem; }
+        .page-title { font-family: 'Georgia', serif; font-style: italic; color: var(--dark-navy); margin-bottom: 2rem; font-size: 1.8rem; }
+
+        /* Book Grid */
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2rem; }
+        .book-card { background: var(--card-bg); border-radius: 12px; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); display: flex; flex-direction: column; }
+        .img-container { position: relative; width: 100%; height: 280px; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .heart-btn { position: absolute; top: 10px; right: 10px; background: white; border: none; width: 30px; height: 30px; border-radius: 50%; color: var(--primary-orange); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .book-card h4 { font-size: 1rem; margin-bottom: 4px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .book-card p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+        /* Timer and Return Button */
+        .deadline-info { font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+        
+        .btn-return { background-color: var(--primary-orange); color: white; text-decoration: none; border-radius: 8px; padding: 0.6rem; width: 100%; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 0.95rem; text-align: center; display: inline-block; margin-top: auto; box-sizing: border-box;}
+        .btn-return:hover { background-color: #d94b1f; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 850px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 1rem 1.5rem; position: relative; border-bottom: 1px solid var(--border-color); }
+            .sidebar-header { margin-bottom: 0; }
+            .hamburger { display: block; }
+            .sidebar-menu { display: none; position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--sidebar-bg); padding: 1rem 1.5rem; box-shadow: 0 10px 15px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color); }
+            .sidebar-menu.show { display: flex; gap: 1rem; }
+            .sidebar-bottom .btn-orange { width: auto; display: inline-block; padding: 0.5rem 2rem; }
+            .main-content { margin-left: 0; padding: 1.5rem 1rem; }
+            .book-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+            .img-container { height: 210px; }
+        }
+    </style>
+</head>
+<body>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <script>
+            window.onload = function() {
+                {% for message in messages %}
+                    alert("{{ message }}");
+                {% endfor %}
+            };
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fa-solid fa-book-open"></i> BookBase
+            </div>
+            <button class="hamburger" onclick="toggleMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu" id="mobileMenu">
+            <nav class="nav-links">
+                <a href="/"><i class="fa-regular fa-compass"></i> Discover</a>
+                <a href="/favorites"><i class="fa-regular fa-heart"></i> Favorites</a>
+                <a href="/issued" class="active"><i class="fa-solid fa-book"></i> Books Issued</a>
+            </nav>
+            <div class="sidebar-bottom">
+                <a href="/logout" class="btn-orange">Logout</a>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <h2 class="page-title">Currently Reading</h2>
+
+        <div class="book-grid">
+            {% for book in books %}
+            <div class="book-card">
+                <div class="img-container">
+                    <img src="{{ book.image_url or 'https://via.placeholder.com/200x300?text=No+Cover' }}" alt="{{ book.title }}">
+                    <div class="heart-btn"><i class="fa-solid fa-heart"></i></div>
+                </div>
+                
+                <h4>{{ book.title }}</h4>
+                <p>{{ book.author_name }}</p>
+                
+                <div class="deadline-info" data-issued="{{ book.issue_date }}"></div>
+
+                <a href="/return_book/{{ book.book_id }}" class="btn-return">Return</a>
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted); grid-column: 1 / -1;">You aren't currently reading any books. Head over to Discover to find your next read!</p>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('mobileMenu').classList.toggle('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const deadlineElements = document.querySelectorAll('.deadline-info');
+            deadlineElements.forEach(el => {
+                const issueDateStr = el.getAttribute('data-issued');
+                if (!issueDateStr || issueDateStr === 'None') return;
+
+                const datePart = issueDateStr.split(' ')[0]; 
+                const [year, month, day] = datePart.split('-');
+                const issueDate = new Date(year, month - 1, day); 
+                
+                const dueDate = new Date(issueDate);
+                dueDate.setDate(dueDate.getDate() + 15);
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                const diffTime = dueDate.getTime() - today.getTime();
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 0) {
+                    el.innerHTML = `<i class="fa-regular fa-clock"></i> ${diffDays} days left`;
+                    el.style.color = 'var(--primary-orange)';
+                } else if (diffDays === 0) {
+                    el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Due Today!`;
+                    el.style.color = '#D93025'; 
+                } else {
+                    el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Overdue by ${Math.abs(diffDays)} days`;
+                    el.style.color = '#D93025'; 
+                    el.style.fontWeight = '900'; 
+                }
+            });
+        });
+    </script>
+</body>
+</html>

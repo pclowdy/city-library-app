@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookBase - Discover</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- CORE STYLES & COLORS --- */
+        :root { --bg-color: #FCF9F5; --sidebar-bg: #F4EBE1; --primary-orange: #F05A28; --dark-navy: #0A2E4D; --text-dark: #333333; --text-muted: #888888; --card-bg: #FDFBFA; --border-color: #EAEAEA; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- SIDEBAR & HAMBURGER --- */
+        .sidebar { width: 250px; background-color: var(--sidebar-bg); padding: 2rem 1rem; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+        .logo { font-size: 1.5rem; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark-navy); cursor: pointer; }
+        .sidebar-menu { display: flex; flex-direction: column; flex-grow: 1; }
+        .nav-links { display: flex; flex-direction: column; gap: 1rem; flex-grow: 1; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); padding: 0.75rem 1rem; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
+        .nav-links a.active { background-color: #FFEAE3; color: var(--primary-orange); }
+        .nav-links a:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
+        .sidebar-bottom { margin-top: auto; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { margin-left: 250px; flex-grow: 1; padding: 2rem 3rem; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .search-bar { background: white; padding: 0.5rem 1rem; border-radius: 20px; width: 400px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
+        .search-bar input { border: none; outline: none; width: 100%; padding-left: 10px; background: transparent; }
+        .auth-buttons { display: flex; gap: 1rem; align-items: center; }
+        .btn-orange { background-color: var(--primary-orange); color: white; text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; border: none; cursor: pointer; text-align: center; transition: background 0.2s; font-size: 0.9rem; width: 100%; display: block;}
+        .btn-orange:hover { background-color: #d94b1f; }
+        .btn-outline { border: 1px solid var(--text-dark); color: var(--text-dark); text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
+        .btn-outline:hover { background-color: #f0f0f0; }
+
+        /* Filters */
+        .filters-container { margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        .section-title { font-family: 'Georgia', serif; font-style: italic; margin-bottom: 1rem; color: var(--dark-navy); font-size: 1.2rem; }
+        .category-pills { display: flex; gap: 10px; }
+        .sort-row { display: flex; align-items: center; gap: 1rem; }
+        .sort-label { font-size: 0.9rem; font-weight: bold; color: var(--dark-navy); }
+        .pill { text-decoration: none; color: var(--text-muted); background: white; padding: 0.5rem 1.3rem; border-radius: 20px; font-size: 0.85rem; border: 1px solid #EAEAEA; transition: all 0.2s ease; }
+        .pill.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); font-weight: bold; }
+
+        /* Book Grid */
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2rem; }
+        .book-card { background: var(--card-bg); border-radius: 12px; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); cursor: pointer; transition: transform 0.2s; }
+        .book-card:hover { transform: translateY(-5px); }
+        .img-container { position: relative; width: 100%; height: 280px; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .heart-btn { position: absolute; top: 10px; right: 10px; background: white; border: none; width: 30px; height: 30px; border-radius: 50%; color: #ccc; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: color 0.2s; }
+        .heart-btn.favorited { color: var(--primary-orange); }
+        .book-card h4 { font-size: 1rem; margin-bottom: 4px; color: var(--text-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .book-card p { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Side Panel */
+        .side-panel { position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background-color: var(--dark-navy); color: white; box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: right 0.3s ease-in-out; z-index: 1000; padding: 2rem; display: flex; flex-direction: column; }
+        .side-panel.open { right: 0; }
+        .close-btn { background: none; border: none; color: white; font-size: 2rem; align-self: flex-end; cursor: pointer; margin-bottom: 1rem; }
+        .panel-img { width: 100%; height: 350px; object-fit: contain; background: white; border-radius: 8px; margin-bottom: 1.5rem; padding: 10px; }
+        .panel-details h2 { font-family: 'Georgia', serif; margin-bottom: 0.5rem; }
+        .panel-details h4 { font-weight: normal; color: #A0C4E0; margin-bottom: 2rem; }
+        .panel-meta { font-size: 0.9rem; color: #A0C4E0; line-height: 1.8; margin-bottom: auto; }
+        .panel-meta span { color: white; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        .overlay.active { display: block; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 850px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 1rem 1.5rem; position: relative; border-bottom: 1px solid var(--border-color); }
+            .sidebar-header { margin-bottom: 0; }
+            .hamburger { display: block; }
+            .sidebar-menu { display: none; position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--sidebar-bg); padding: 1rem 1.5rem; box-shadow: 0 10px 15px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color); }
+            .sidebar-menu.show { display: flex; gap: 1rem; }
+            .sidebar-bottom .btn-orange { width: auto; display: inline-block; padding: 0.5rem 2rem; }
+            .main-content { margin-left: 0; padding: 1.5rem 1rem; }
+            .top-header { flex-direction: column; gap: 1rem; align-items: stretch; }
+            .search-bar { width: 100%; }
+            .auth-buttons { justify-content: center; width: 100%; gap: 0.5rem; }
+            .auth-buttons a { flex: 1; padding: 0.6rem 0.5rem; text-align: center; font-size: 0.85rem;}
+            .category-pills { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+            .category-pills::-webkit-scrollbar { display: none; }
+            .pill { white-space: nowrap; }
+            .book-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+            .img-container { height: 210px; }
+            .side-panel { width: 100%; right: -100%; padding: 1.5rem; }
+            .panel-img { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <script>
+            {% for message in messages %}
+                alert("{{ message }}");
+            {% endfor %}
+        </script>
+      {% endif %}
+    {% endwith %}
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fa-solid fa-book-open"></i> BookBase
+            </div>
+            <button class="hamburger" onclick="toggleMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu" id="mobileMenu">
+            <nav class="nav-links">
+                <a href="/" class="active"><i class="fa-regular fa-compass"></i> Discover</a>
+                <a href="/favorites"><i class="fa-regular fa-heart"></i> Favorites</a>
+                <a href="/issued"><i class="fa-solid fa-book"></i> Books Issued</a>
+            </nav>
+            <div class="sidebar-bottom">
+                {% if session.get('member_id') %}
+                    <a href="/logout" class="btn-orange">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn-orange">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <form action="/" method="GET" class="search-bar">
+                <button type="submit" style="background: none; border: none; cursor: pointer; padding-right: 8px; display: flex; align-items: center;">
+                    <i class="fa-solid fa-magnifying-glass" style="color: #ccc; font-size: 1.1rem; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-orange)'" onmouseout="this.style.color='#ccc'"></i>
+                </button>
+                <input type="text" name="search" placeholder="search your library..." value="{{ request.args.get('search', '') }}">
+            </form>
+            
+            <div class="auth-buttons">
+                {% if not session.get('member_id') %}
+                    <a href="/admin_login" class="btn-outline">Admin Login</a>
+                    <a href="/login" class="btn-orange">Member Sign In</a>
+                {% else %}
+                    <span>Hi, <strong>{{ session.get('member_name') }}</strong></span>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="filters-container">
+            <div class="categories-row">
+                <h3 class="section-title">Filter By Category</h3>
+                <div class="category-pills">
+                    <a href="/" class="pill {% if not request.args.get('category') or request.args.get('category') == 'All' %}active{% endif %}">All</a>
+                    <a href="/?category=Fantasy" class="pill {% if request.args.get('category') == 'Fantasy' %}active{% endif %}">Fantasy</a>
+                    <a href="/?category=General Fiction" class="pill {% if request.args.get('category') == 'General Fiction' %}active{% endif %}">General Fiction</a>
+                    <a href="/?category=History" class="pill {% if request.args.get('category') == 'History' %}active{% endif %}">History</a>
+                    <a href="/?category=Romance" class="pill {% if request.args.get('category') == 'Romance' %}active{% endif %}">Romance</a>
+                    <a href="/?category=Science & Tech" class="pill {% if request.args.get('category') == 'Science & Tech' %}active{% endif %}">Science & Tech</a>
+                </div>
+            </div>
+            <div class="sort-row">
+                <span class="sort-label">Sort</span>
+                <a href="/?sort=ASC" class="pill {% if request.args.get('sort', 'ASC') == 'ASC' %}active{% endif %}">A-Z</a>
+                <a href="/?sort=DESC" class="pill {% if request.args.get('sort') == 'DESC' %}active{% endif %}">Z-A</a>
+            </div>
+        </div>
+
+        <div class="book-grid">
+            {% for book in books %}
+            <div class="book-card" onclick="openPanel('{{ book.book_id }}', '{{ book.title|replace('\'', '\\\'') }}', '{{ book.author_name|replace('\'', '\\\'') }}', '{{ book.category_name }}', '{{ book.year }}', '{{ book.publisher|replace('\'', '\\\'') }}', '{{ book.image_url }}')">
+                <div class="img-container">
+                    <img src="{{ book.image_url or 'https://via.placeholder.com/200x300?text=No+Cover' }}" alt="{{ book.title }}">
+                    <button class="heart-btn {% if book.book_id in user_favorites %}favorited{% endif %}" onclick="event.stopPropagation(); toggleFav('{{ book.book_id }}', this)">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                </div>
+                <h4>{{ book.title }}</h4>
+                <p>{{ book.author_name }}</p>
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted); grid-column: 1 / -1; padding: 2rem; text-align: center;">No books found in this category.</p>
+            {% endfor %}
+        </div>
+    </main>
+
+    <div id="overlay" class="overlay" onclick="closePanel()"></div>
+    
+    <div id="side-panel" class="side-panel">
+        <button class="close-btn" onclick="closePanel()">&times;</button>
+        <img id="panel-img" class="panel-img" src="" alt="Book Cover">
+        <div class="panel-details">
+            <h2 id="panel-title">Book Title</h2>
+            <h4 id="panel-author">Author Name</h4>
+            <div class="panel-meta">
+                <p>Genre: <span id="panel-genre"></span></p>
+                <p>Year: <span id="panel-year"></span></p>
+                <p>Publisher: <span id="panel-publisher"></span></p>
+            </div>
+        </div>
+        <button id="issue-btn" class="btn-orange" style="margin-top:2rem; width:100%; padding:1rem; font-size:1.1rem;" onclick="issueBook()">Read Now (Issue)</button>
+    </div>
+
+    <script>
+        let currentSelectedBookId = null;
+
+        function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('show'); }
+
+        function openPanel(id, title, author, genre, year, publisher, imgUrl) {
+            currentSelectedBookId = id;
+            document.getElementById('panel-title').innerText = title;
+            document.getElementById('panel-author').innerText = author;
+            document.getElementById('panel-genre').innerText = genre || 'N/A';
+            document.getElementById('panel-year').innerText = year !== 'None' ? year : 'N/A';
+            document.getElementById('panel-publisher').innerText = publisher !== 'None' ? publisher : 'N/A';
+            document.getElementById('panel-img').src = imgUrl || 'https://via.placeholder.com/200x300?text=No+Cover';
+            
+            document.getElementById('side-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function closePanel() {
+            document.getElementById('side-panel').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+            currentSelectedBookId = null;
+        }
+
+        // --- THE FIX: Acts EXACTLY like a normal HTML link click ---
+        // --- THE REAL FIX: Forces a POST request to match your app.py ---
+        function issueBook() {
+            if (!currentSelectedBookId) return;
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/issue/' + currentSelectedBookId;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function toggleFav(bookId, btnElement) {
+            fetch('/toggle_favorite', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ book_id: bookId })
+            })
+            .then(response => {
+                if (response.redirected) { window.location.href = response.url; return null; }
+                if (response.status === 401) { window.location.href = '/login'; return null; }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.status === 'success') {
+                    if (data.action === 'added') btnElement.classList.add('favorited');
+                    else btnElement.classList.remove('favorited');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
