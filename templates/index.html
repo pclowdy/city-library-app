@@ -29,10 +29,9 @@
         .search-bar { background: white; padding: 0.5rem 1rem; border-radius: 20px; width: 400px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
         .search-bar input { border: none; outline: none; width: 100%; padding-left: 10px; background: transparent; }
         .auth-buttons { display: flex; gap: 1rem; align-items: center; }
-        .btn-orange { background-color: var(--primary-orange); color: white; text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; border: none; cursor: pointer; text-align: center; transition: background 0.2s; font-size: 0.9rem; width: 100%; display: block;}
+        ..btn-orange { background-color: var(--primary-orange); color: white; text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; border: none; cursor: pointer; text-align: center; transition: background 0.2s; font-size: 0.9rem; min-width: 160px; display: inline-block;}
         .btn-orange:hover { background-color: #d94b1f; }
-        .btn-outline { border: 1px solid var(--text-dark); color: var(--text-dark); text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
-        .btn-outline:hover { background-color: #f0f0f0; }
+        .btn-outline { border: 1px solid var(--text-dark); color: var(--text-dark); text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; text-align: center; min-width: 160px; display: inline-block;}
 
         /* Filters */
         .filters-container { margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
