@@ -43,13 +43,29 @@
             height: 100vh;
         }
 
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 3rem;
+        }
+
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 3rem;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .hamburger-btn {
+            display: none; /* Hidden on desktop */
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--dark-navy);
+            cursor: pointer;
         }
 
         .nav-links {
@@ -249,6 +265,7 @@
             z-index: 999;
         }
         .overlay.active { display: block; }
+
         /* --- MOBILE RESPONSIVENESS (PHONES & TABLETS) --- */
         @media (max-width: 850px) {
             body { flex-direction: column; }
@@ -260,14 +277,29 @@
                 height: auto;
                 padding: 1rem;
                 flex-direction: column;
-                align-items: center;
+                align-items: stretch;
                 gap: 1rem;
                 border-bottom: 1px solid var(--border-color);
                 z-index: 10;
             }
+            .sidebar-header { margin-bottom: 0; }
             .logo { margin-bottom: 0; }
-            .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-            .sidebar-bottom { margin-top: 0; width: 100%; display: flex; justify-content: center; }
+            .hamburger-btn { display: block; } /* Show hamburger on mobile */
+
+            /* Hide menus by default on mobile, stack them vertically */
+            .nav-links, .sidebar-bottom { 
+                display: none; 
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+            
+            /* Classes toggled by JavaScript to show the menu */
+            .nav-links.show, .sidebar-bottom.show {
+                display: flex;
+            }
+
+            .sidebar-bottom { margin-top: 0; justify-content: center; }
             .sidebar-bottom .btn-orange { width: auto; padding: 0.5rem 2rem; }
             
             /* Main Content Adjustments */
@@ -311,15 +343,21 @@
 <body>
 
     <aside class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-book-open"></i> BookBase
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fa-solid fa-book-open"></i> BookBase
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
-        <nav class="nav-links">
+        
+        <nav class="nav-links" id="mobile-menu">
             <a href="/"><i class="fa-regular fa-compass"></i> Discover</a>
             <a href="/favorites" class="active"><i class="fa-regular fa-heart"></i> Favorites</a>
             <a href="/issued"><i class="fa-solid fa-book"></i> Books Issued</a>
         </nav>
-        <div class="sidebar-bottom">
+        <div class="sidebar-bottom" id="mobile-menu-bottom">
             <a href="/logout" class="btn-orange">Logout</a>
         </div>
     </aside>
@@ -363,6 +401,12 @@
     </div>
 
     <script>
+        // Toggles the mobile menu on and off
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('show');
+            document.getElementById('mobile-menu-bottom').classList.toggle('show');
+        }
+
         let currentSelectedBookId = null;
 
         function openPanel(id, title, author, genre, year, publisher, imgUrl) {
