@@ -102,7 +102,7 @@
             {% for book in books %}
             <div class="book-card">
                 <div class="img-container">
-                    <img src="{{ book.image_url or 'https://via.placeholder.com/200x300?text=No+Cover' }}" alt="{{ book.title }}">
+                    <img src="{{ book.image_url or 'https://via.placeholder.com/200x300?text=No+Cover' }}" alt="{{ book.title }}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
                     <div class="heart-btn"><i class="fa-solid fa-heart"></i></div>
                 </div>
                 
