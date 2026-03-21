@@ -21,7 +21,7 @@
         .nav-links a { text-decoration: none; color: var(--text-dark); padding: 0.75rem 1rem; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; }
         .nav-links a.active { background-color: #FFEAE3; color: var(--primary-orange); }
         .nav-links a:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
-        .sidebar-bottom { margin-top: auto; }
+        .sidebar-bottom { margin-top: auto; text-align: center; }
 
         /* --- MAIN CONTENT --- */
         .main-content { margin-left: 250px; flex-grow: 1; padding: 2rem 3rem; }
@@ -29,9 +29,12 @@
         .search-bar { background: white; padding: 0.5rem 1rem; border-radius: 20px; width: 400px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
         .search-bar input { border: none; outline: none; width: 100%; padding-left: 10px; background: transparent; }
         .auth-buttons { display: flex; gap: 1rem; align-items: center; }
-        ..btn-orange { background-color: var(--primary-orange); color: white; text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; border: none; cursor: pointer; text-align: center; transition: background 0.2s; font-size: 0.9rem; min-width: 160px; display: inline-block;}
+        
+        /* --- FIXED BUTTONS --- */
+        .btn-orange { background-color: var(--primary-orange); color: white; text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; border: none; cursor: pointer; text-align: center; transition: background 0.2s; font-size: 0.9rem; min-width: 160px; display: inline-block;}
         .btn-orange:hover { background-color: #d94b1f; }
-        .btn-outline { border: 1px solid var(--text-dark); color: var(--text-dark); text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; text-align: center; min-width: 160px; display: inline-block;}
+        .btn-outline { border: 1px solid var(--text-dark); color: var(--text-dark); text-decoration: none; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; text-align: center; min-width: 160px; display: inline-block; }
+        .btn-outline:hover { background-color: #f0f0f0; }
 
         /* Filters */
         .filters-container { margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
